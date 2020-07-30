@@ -36,6 +36,8 @@ global $con;
 
 	$field_str = '';
 	$value_str = '';
+	$insert['create_date'] = time();
+	$insert['update_date'] = time();
 
 	//santize insert data
 	foreach($insert as $key=>$value){
@@ -62,6 +64,7 @@ global $con;
 
 	$field_str = '';
 	$value_str = '';
+	$insert['update_date'] = time();
 
     $update_str = '';
     foreach($insert as $key=>$value){
@@ -72,11 +75,39 @@ global $con;
     $sql = "UPDATE $table SET $update_str WHERE $where ";
     $try = $con->query($sql);
     if ($try === TRUE && mysqli_affected_rows($con) >= 0) {
-        $return = true;
+        return true;
     }else{
 		echo "Mysql Error: ".mysqli_error($con);
 		return false;
 	}
+}
+
+//will update or insert if it does not exist, specify last param as true to get more info, otherwise will
+//return true or false; always retruns false if failed.
+function mysqli_upsert($table,$insert,$where,$info = false){
+    $return = false;
+    if (mysqli_count($table,$where) > 0){
+        $return = mysqli_update($table,$insert,$where);
+        if ($info){
+            $return_array['type'] = 'update';
+            $return_array['successful'] = true;
+        }
+    }else{
+        $id = mysqli_insert($table,$insert);
+        if ($id >= 0){
+            $return = true;
+            if ($info){
+                $return_array['type'] = 'insert';
+                $return_array['successful'] = true;
+                $return_array['id'] = $id;
+            }
+        }
+    }
+    
+    if (isset($return_array)){
+        return $return_array;
+    }
+    return $return;
 }
 
 //select rows.
@@ -115,4 +146,3 @@ function mysqli_select_single($query){
 
 
 ?>
-
