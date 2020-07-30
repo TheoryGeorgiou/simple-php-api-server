@@ -1,4 +1,4 @@
-# simple-api-server
+# simple-php-api-server
 super basic php api server.
 
 Connect it to a mysql database and enjoy.
