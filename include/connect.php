@@ -1,11 +1,5 @@
 <?php
 
-$servername = "localhost";
-$username = "";
-$password = "";
-$database = "";
-
-
 // Create connection
 $con = mysqli_connect($servername, $username, $password, $database);
 //echo mysqli_connect_error();
@@ -15,13 +9,23 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+//clean post vals for mysql.
+array_walk_recursive($_POST, function(&$val) use($con) {
+    $val = !is_string($val) ?: mysqli_real_escape_string($con, htmlspecialchars($val));
+});
+
+//clean post vals for mysql.
+array_walk_recursive($_GET, function(&$val) use($con) {
+    $val = !is_string($val) ?: mysqli_real_escape_string($con, htmlspecialchars($val));
+});
+
 //get number of rows in a query.
 function mysqli_count($table,$where){
     global $con;
 
     $query = "SELECT COUNT(*) as row_count FROM $table WHERE $where";
     $result = $con->query($query);
-    if ($con->query($query) != TRUE) { 
+    if ($result != TRUE) { 
 		echo "Mysql Error: ".mysqli_error($con);
 		return false;
     }else{
@@ -73,8 +77,7 @@ global $con;
     
     $rec = false;
     $sql = "UPDATE $table SET $update_str WHERE $where ";
-    $try = $con->query($sql);
-    if ($try === TRUE && mysqli_affected_rows($con) >= 0) {
+    if ($con->query($sql) === TRUE && mysqli_affected_rows($con) >= 0) {
         return true;
     }else{
 		echo "Mysql Error: ".mysqli_error($con);
@@ -117,7 +120,7 @@ function mysqli_select($query){
     $row_total = 0;
 
     $result = $con->query($query);
-    if ($con->query($query) != TRUE) { 
+    if ($result != TRUE) { 
 		echo "Mysql Error: ".mysqli_error($con);
 		return false;
     }else{
@@ -133,16 +136,13 @@ function mysqli_select($query){
 
 //select single entry
 function mysqli_select_single($query){
-    $return = scr_mysqli_select($query.' LIMIT 1');
+    $return = mysqli_select($query.' LIMIT 1');
     if ($return){
         return $return[0];
     }else{
+        echo "Mysql Error: ".mysqli_error($con);
         return false;
     }
 }
-
-
-
-
 
 ?>

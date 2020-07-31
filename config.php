@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
@@ -9,18 +9,12 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('UTC');
 
-session_start();
-$start = microtime(true);
+$servername = "localhost";
+$username = "";
+$password = "";
+$database = "";
+
 include('include/connect.php');	
-
-//settings.
-$pwsalt = 'Asd$%4%^&3^&564234';
-
-
-
-
-
-
 
 //utility functions.
 //response handling of api
